@@ -52,10 +52,12 @@ with graph.as_default():
     with sess.as_default():
         # Load the saved meta graph and restore variables
         saver = tf.train.import_meta_graph("{}.meta".format(checkpoint_file))
-        sess.run(tf.initialize_all_variables())
+        sess.run(tf.global_variables_initializer())
         saver.restore(sess, checkpoint_file)
 
         # Get the placeholders from the graph by name
+        #The list of Tensor objects representing the outputs of this op.
+        #print("Len of outputs: " + str(len(graph.get_operation_by_name("input_x1").outputs)))
         input_x1 = graph.get_operation_by_name("input_x1").outputs[0]
         input_x2 = graph.get_operation_by_name("input_x2").outputs[0]
         input_y = graph.get_operation_by_name("input_y").outputs[0]
@@ -75,14 +77,16 @@ with graph.as_default():
         # Collect the predictions here
         all_predictions = []
         all_d=[]
+        loop_count=0
+        #https://stackoverflow.com/questions/38306330/tensorflow-typeerror-on-session-run-arguments-output
         for db in batches:
             x1_dev_b,x2_dev_b,y_dev_b = zip(*db)
-            batch_predictions, batch_acc, sim = sess.run([predictions,accuracy,sim], {input_x1: x1_dev_b, input_x2: x2_dev_b, input_y:y_dev_b, dropout_keep_prob: 1.0})
+            batch_predictions, batch_acc, batch_similarity = sess.run([predictions,accuracy,sim], {input_x1: x1_dev_b, input_x2: x2_dev_b, input_y:y_dev_b, dropout_keep_prob: 1.0})
             all_predictions = np.concatenate([all_predictions, batch_predictions])
-            print(batch_predictions)
-            all_d = np.concatenate([all_d, sim])
+            print("Similarity Distance: {}".format(batch_predictions))
+            all_d = np.concatenate([all_d, batch_similarity])
             print("DEV acc {}".format(batch_acc))
         for ex in all_predictions:
             print ex 
         correct_predictions = float(np.mean(all_d == y_test))
-        print("Accuracy: {:g}".format(correct_predictions))
+        print("Overall Evaluation Accuracy: {:g}".format(correct_predictions))

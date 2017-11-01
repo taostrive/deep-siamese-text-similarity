@@ -43,6 +43,7 @@ if FLAGS.training_files==None:
  
 max_document_length=30
 inpH = InputHelper()
+#The train_set is a tuple: train_set=(x1_train,x2_train,y_train) 
 train_set, dev_set, vocab_processor,sum_no_of_batches = inpH.getDataSets(FLAGS.training_files,max_document_length, 10, FLAGS.batch_size)
 
 # Training
@@ -170,6 +171,7 @@ with tf.Graph().as_default():
         return accuracy
 
     # Generate batches
+    #Tao: the batches are rows of triplet and each triplet composes of input_sentense1, input_sentense2, flag of same or different
     batches=inpH.batch_iter(
                 list(zip(train_set[0], train_set[1], train_set[2])), FLAGS.batch_size, FLAGS.num_epochs)
 
@@ -177,7 +179,7 @@ with tf.Graph().as_default():
     max_validation_acc=0.0
     for nn in xrange(sum_no_of_batches*FLAGS.num_epochs):
         batch = batches.next()
-        if len(batch)<1:
+        if len(batch)<1:#If it is true, it indicated that a epoch run is over.
             continue
         x1_batch,x2_batch, y_batch = zip(*batch)
         if len(y_batch)<1:

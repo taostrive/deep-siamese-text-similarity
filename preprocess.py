@@ -16,12 +16,14 @@ def tokenizer(iterator):
   for value in iterator:
     yield list(value)
     
+#https://github.com/tensorflow/tensorflow/blob/r1.3/tensorflow/contrib/learn/python/learn/preprocessing/text.py
 class MyVocabularyProcessor(learn.preprocessing.VocabularyProcessor):
     def __init__(self,
                max_document_length,
                min_frequency=0,
                vocabulary=None,
                tokenizer_fn=tokenizer):
+        #https://docs.python.org/2/library/functions.html#super   
         self.sup = super(MyVocabularyProcessor,self)
         self.sup.__init__(max_document_length,min_frequency,vocabulary,tokenizer_fn)
 
@@ -35,6 +37,8 @@ class MyVocabularyProcessor(learn.preprocessing.VocabularyProcessor):
         Yields:
           x: iterable, [n_samples, max_document_length]. Word-id matrix.
         """
+        #Tao: the outer for loop iterates on rows of sentenses and the inner one does on a specific row
+        #Tao: [n_samples, max_document_length] --> n_samples here denotes the number of triplets in a whole trainning/evaluation set
         for tokens in self._tokenizer(raw_documents):
             word_ids = np.zeros(self.max_document_length, np.int64)
             for idx, token in enumerate(tokens):
