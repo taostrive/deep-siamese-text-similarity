@@ -92,9 +92,10 @@ class SiameseLSTM(object):
         with tf.name_scope("output"):
             self.out1=self.BiRNN(self.embedded_chars1, self.dropout_keep_prob, "side1", embedding_size, sequence_length)
             self.out2=self.BiRNN(self.embedded_chars2, self.dropout_keep_prob, "side2", embedding_size, sequence_length)
-            # (o1 - o2)
+            # distance1=sqrt(reduce_sum((o1 - o2)**2))
             self.distance = tf.sqrt(tf.reduce_sum(tf.square(tf.subtract(self.out1,self.out2)),1,keep_dims=True))
-            #
+            # distance2=sqrt(reduce_sum(o1**2)) + sqrt(reduce_sum(o2**2))
+            # distance=distance1/distance2
             self.distance = tf.div(self.distance, tf.add(tf.sqrt(tf.reduce_sum(tf.square(self.out1),1,keep_dims=True)),tf.sqrt(tf.reduce_sum(tf.square(self.out2),1,keep_dims=True))))
             #In particular, a shape of [-1] flattens into 1-D. 
             self.distance = tf.reshape(self.distance, [-1], name="distance")
@@ -102,7 +103,7 @@ class SiameseLSTM(object):
             self.loss = self.contrastive_loss(self.input_y,self.distance, batch_size)
         #### Accuracy computation is outside of this class.
         with tf.name_scope("accuracy"):
-            #tf.ones_like -->Creates a tensor with all elements set to 1.
+            #Tao: Why do 1 - distance(i) and then compare with ground truth value? The similarity is disproportional to the distance value.
             self.temp_sim = tf.subtract(tf.ones_like(self.distance),tf.rint(self.distance), name="temp_sim") #auto threshold 0.5
             correct_predictions = tf.equal(self.temp_sim, self.input_y)
             self.accuracy=tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
