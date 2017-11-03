@@ -66,6 +66,9 @@ with tf.Graph().as_default():
 
         # Define Training procedure
         global_step = tf.Variable(0, name="global_step", trainable=False)
+        #Tao: Why don't we change the learning rate for AdamOptimizer explicitly during training?
+        #https://stackoverflow.com/questions/38882593/learning-rate-doesnt-change-for-adamoptimizer-in-tensorflow
+        #https://stackoverflow.com/questions/36990476/getting-the-current-learning-rate-from-a-tf-train-adamoptimizer
         optimizer = tf.train.AdamOptimizer(1e-3)
         print("initialized siameseModel object")
     
