@@ -90,3 +90,4 @@ with graph.as_default():
             print ex 
         correct_predictions = float(np.mean(all_d == y_test))
         print("Overall Evaluation Accuracy: {:g}".format(correct_predictions))
+        sess.close()

@@ -32,6 +32,7 @@ class InputHelper(object):
             else:
                x1.append(l[1].lower())
                x2.append(l[0].lower())
+            #Note here y is a list which will be filled with purely 1!!
             y.append(1)#np.array([0,1]))
         # generate random negative samples
         #negative samples' length is twice of positive ones!
